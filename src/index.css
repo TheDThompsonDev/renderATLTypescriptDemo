@@ -1,0 +1,157 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 400px;
+  height: auto;
+  margin: 50px auto;
+  padding: 20px;
+  padding-bottom: 50px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  border-color: #00aaff;
+}
+
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+}
+
+h2 {
+  color: #359dff;
+  font-size: 36px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.input-section,
+.display-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 20px;
+}
+
+input[type="text"],
+input[type="number"] {
+  padding: 10px;
+  margin-right: 10px;
+  margin-bottom: 5px;
+  width: calc(50% - 15px);
+  border-radius: 10px;
+  border: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table,
+th,
+td {
+  border: 1px solid #ddd;
+}
+
+th,
+td {
+  padding: 8px 12px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.modal {
+  display: block; /* Ensure modal is displayed when isOpen is true */
+  position: fixed;
+  z-index: 1;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #f3f3f3;
+  border-color: #00aaff;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 30%;
+  border-radius: 10px;
+}
+
+.close {
+  color: #e6e6e6;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #00aaff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.progress-bar-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.progress-bar {
+  transform: rotate(-90deg);
+}
+
+#progress {
+  stroke-dasharray: 565.48;
+}
+
+p {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 5px 0 0 5px;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+table,
+th,
+td {
+  border-color: #00aaff;
+}
+
+button,
+input[type="button"],
+input[type="submit"] {
+  background-color: #00aaff;
+  color: #ffffff;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border-radius: 15px;
+}
+
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+  background-color: #0088cc;
+}
