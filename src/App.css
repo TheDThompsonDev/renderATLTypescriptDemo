@@ -40,3 +40,20 @@
 .read-the-docs {
   color: #888;
 }
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.pagination-container button,
+.pagination-container .placeholder {
+  flex: 1;
+}
+
+.date-display {
+  flex: 2;
+  text-align: center;
+}

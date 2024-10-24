@@ -7,12 +7,14 @@ import { databases, ID, Query } from "./appwrite";
 import { ModalState } from "./types/modalTypes";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import "./App.css";
 
 interface Document {
   $id: string;
   $createdAt: string;
   food: string;
   calories: number;
+  date: string; // Add this line
   $collectionId: string;
   $databaseId: string;
   $updatedAt: string;
@@ -27,6 +29,19 @@ interface ListDocumentsResponse {
   documents: Document[];
 }
 
+// Helper function to get local midnight date string
+const getCurrentLocalDateTimeString = (date: Date): string => {
+  return date.toISOString();
+};
+
+const formatDate = (date: Date): string => {
+  return date.toLocaleDateString(undefined, {
+    month: "2-digit",
+    day: "2-digit",
+    year: "2-digit",
+  });
+};
+
 const App = () => {
   const [modalState, setModalState] = useState<ModalState>({ state: "closed" });
   const [calories, setCalories] = useState<
@@ -40,43 +55,40 @@ const App = () => {
 
   const isToday = (date: Date) => {
     const today = new Date();
-    return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
-    );
+    return date.toDateString() === today.toDateString();
   };
 
   const goToPreviousDay = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() - 1);
+    const newDate = new Date(selectedDate.getTime() - 24 * 60 * 60 * 1000);
     setSelectedDate(newDate);
     setCurrentPage(1);
   };
 
   const goToNextDay = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() + 1);
+    const newDate = new Date(selectedDate.getTime() + 24 * 60 * 60 * 1000);
     setSelectedDate(newDate);
     setCurrentPage(1);
   };
 
   const fetchAndDisplayData = (date: Date, page: number) => {
-    const startOfDay = new Date(date.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
 
     databases
       .listDocuments<Document>("658ef821cfb41e5aed8e", "658ef82cef38dc12b638", [
-        Query.greaterThanEqual("$createdAt", startOfDay.toISOString()),
-        Query.lessThanEqual("$createdAt", endOfDay.toISOString()),
+        Query.greaterThanEqual("date", startOfDay.toISOString()),
+        Query.lessThan("date", endOfDay.toISOString()),
         Query.limit(itemsPerPage),
         Query.offset((page - 1) * itemsPerPage),
       ])
       .then((response: ListDocumentsResponse) => {
+        console.log(response);
         const documents = response.documents.map((doc) => ({
           food: doc.food,
           calories: doc.calories,
-          date: new Date(doc.$createdAt),
+          date: new Date(doc.date),
         }));
         setCalories(documents);
         setTotalCalories(
@@ -87,11 +99,7 @@ const App = () => {
   };
 
   const addCalories = (foodItem: string, calorieCount: number) => {
-    const formattedDate = selectedDate.toLocaleDateString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    });
+    const currentDateTime = getCurrentLocalDateTimeString(new Date());
 
     databases
       .createDocument(
@@ -101,7 +109,7 @@ const App = () => {
         {
           food: foodItem,
           calories: calorieCount,
-          date: formattedDate,
+          date: currentDateTime,
         }
       )
       .then(() => {
@@ -165,11 +173,13 @@ const App = () => {
         </div>
       </div>
 
-      <div className="pagination">
+      <div className="pagination-container">
         <button onClick={goToPreviousDay}>Previous Day</button>
-        <span>{selectedDate.toLocaleDateString()}</span>
-        {!isToday(selectedDate) && (
+        <span className="date-display">{formatDate(selectedDate)}</span>
+        {!isToday(selectedDate) ? (
           <button onClick={goToNextDay}>Next Day</button>
+        ) : (
+          <div className="placeholder"></div>
         )}
       </div>
     </div>

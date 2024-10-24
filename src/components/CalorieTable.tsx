@@ -10,9 +10,27 @@ type CalorieTableProps = {
   calories: ReadonlyArray<CalorieItem>;
 };
 
+const formatDate = (date: Date): string => {
+  return date.toLocaleString(undefined, {
+    year: "2-digit",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
 const CalorieTable: React.FC<CalorieTableProps> = ({ calories }) => {
   return (
-    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+    <table
+      style={{
+        width: "100%",
+        maxWidth: "800px",
+        margin: "0 auto",
+        borderCollapse: "collapse",
+      }}
+    >
       <thead>
         <tr>
           <th
@@ -20,15 +38,17 @@ const CalorieTable: React.FC<CalorieTableProps> = ({ calories }) => {
               textAlign: "left",
               padding: "10px",
               borderBottom: "1px solid #ddd",
+              width: "30%",
             }}
           >
             Date
           </th>
           <th
             style={{
-              textAlign: "left",
+              textAlign: "center",
               padding: "10px",
               borderBottom: "1px solid #ddd",
+              width: "50%",
             }}
           >
             Food Item
@@ -38,6 +58,7 @@ const CalorieTable: React.FC<CalorieTableProps> = ({ calories }) => {
               textAlign: "right",
               padding: "10px",
               borderBottom: "1px solid #ddd",
+              width: "20%",
             }}
           >
             Calories
@@ -47,10 +68,22 @@ const CalorieTable: React.FC<CalorieTableProps> = ({ calories }) => {
       <tbody>
         {calories.map((item, index) => (
           <tr key={index}>
-            <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-              {item.date.toLocaleString()}
+            <td
+              style={{
+                padding: "10px",
+                borderBottom: "1px solid #ddd",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {formatDate(item.date)}
             </td>
-            <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+            <td
+              style={{
+                padding: "10px",
+                borderBottom: "1px solid #ddd",
+                textAlign: "center",
+              }}
+            >
               {item.food}
             </td>
             <td

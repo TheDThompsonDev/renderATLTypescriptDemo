@@ -3,7 +3,7 @@ body {
 }
 
 .container {
-  max-width: 400px;
+  max-width: 550px;
   height: auto;
   margin: 50px auto;
   padding: 20px;
@@ -154,4 +154,24 @@ button:hover,
 input[type="button"]:hover,
 input[type="submit"]:hover {
   background-color: #0088cc;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.pagination-container button {
+  padding: 5px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.date-display {
+  white-space: nowrap;
+  min-width: 100px;
+  text-align: center;
 }
