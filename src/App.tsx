@@ -132,9 +132,11 @@ const App = () => {
       <div className="filter-section">
         <DatePicker
           selected={selectedDate}
-          onChange={(date: Date) => {
-            setSelectedDate(date);
-            setCurrentPage(1);
+          onChange={(date: Date | null) => {
+            if (date) {
+              setSelectedDate(date);
+              setCurrentPage(1);
+            }
           }}
           dateFormat="MM/dd/yyyy"
         />
