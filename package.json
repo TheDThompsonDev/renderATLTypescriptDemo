@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "appwrite": "^15.0.0",
+    "@types/react-datepicker": "^7.0.0",
+    "appwrite": "^16.0.2",
     "react": "^18.2.0",
+    "react-datepicker": "^7.5.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
