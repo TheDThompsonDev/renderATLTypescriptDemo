@@ -8,31 +8,44 @@ import { ModalState } from "./types/modalTypes";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./App.css";
+import { getProperty } from "./utils/inference";
+import { CalorieResponse } from "./types/conditionalTypes";
 
-interface Document {
+interface AppDocument {
   $id: string;
   $createdAt: string;
   food: string;
   calories: number;
-  date: string; // Add this line
+  date: string;
   $collectionId: string;
   $databaseId: string;
   $updatedAt: string;
   $permissions: string[];
 }
 
-//The ListDocumentsResponse interface
-//describes the structure of the response when fetching documents from the database.
-//It includes the total number of documents and an array of Document objects.
-interface ListDocumentsResponse {
-  total: number;
-  documents: Document[];
-}
+// type CaloriesTotal<TCalories> = {
+//   data: TCalories;
+// };
 
-// Helper function to get local midnight date string
+// type dailyCaloriesTotal = CaloriesTotal<{
+//   calories: number;
+// }>;
+
+//A Helper Function to get the current date and time in the local timezone by having :string
+//before the function we are saying the return type of the function is a string
+//it infers the return type from the function this way
 const getCurrentLocalDateTimeString = (date: Date): string => {
   return date.toISOString();
 };
+
+//A Helper Function to format the date to the format of MM/dd/yyyy
+//before the function we are saying the return type of the function is a string
+//it infers the return type from the function this way
+//the function takes a date as an argument and returns a string
+//the function uses the toLocaleDateString method to format the date
+//the toLocaleDateString method takes two arguments:
+//1. undefined: it uses the default locale of the JavaScript runtime
+//2. An object that contains one or more properties that specify comparison options.
 
 const formatDate = (date: Date): string => {
   return date.toLocaleDateString(undefined, {
@@ -59,43 +72,80 @@ const App = () => {
   };
 
   const goToPreviousDay = () => {
-    const newDate = new Date(selectedDate.getTime() - 24 * 60 * 60 * 1000);
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate() - 1);
     setSelectedDate(newDate);
     setCurrentPage(1);
   };
 
   const goToNextDay = () => {
-    const newDate = new Date(selectedDate.getTime() + 24 * 60 * 60 * 1000);
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate() + 1);
     setSelectedDate(newDate);
     setCurrentPage(1);
   };
 
-  const fetchAndDisplayData = (date: Date, page: number) => {
+  // Our first intro to a generic function
+  // The function takes a date and a page number as arguments
+  // The function returns a Promise that resolves to a CalorieResponse object
+  // The CalorieResponse object has two properties:
+  // 1. data: an array of AppDocument objects representing the fetched data
+  // 2. error: a string representing the error message if the fetch operation fails
+
+  //You can think of T as a placeholder for any type that will have the structure of AppDocument.
+  //This makes the function reusable with different kinds of documents in the future, while ensuring
+  //they always contain certain fields.
+  const fetchAndDisplayData = async <T extends AppDocument>(
+    date: Date,
+    page: number
+  ): Promise<CalorieResponse<"success" | "error">> => {
+    //This means the function will return a Promise that resolves to a CalorieResponse
+    //object, and this object will either contain "success" or "error" as a result.
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    databases
-      .listDocuments<Document>("658ef821cfb41e5aed8e", "658ef82cef38dc12b638", [
-        Query.greaterThanEqual("date", startOfDay.toISOString()),
-        Query.lessThan("date", endOfDay.toISOString()),
-        Query.limit(itemsPerPage),
-        Query.offset((page - 1) * itemsPerPage),
-      ])
-      .then((response: ListDocumentsResponse) => {
-        console.log(response);
-        const documents = response.documents.map((doc) => ({
-          food: doc.food,
-          calories: doc.calories,
-          date: new Date(doc.date),
-        }));
-        setCalories(documents);
-        setTotalCalories(
-          documents.reduce((sum, item) => sum + item.calories, 0)
-        );
-      })
-      .catch((error: Error) => console.error("Error fetching data:", error));
+    try {
+      const response = await databases.listDocuments<T>(
+        "658ef821cfb41e5aed8e", //appwrite database id
+        "658ef82cef38dc12b638", //appwrite collection id
+        [
+          Query.greaterThanEqual("date", startOfDay.toISOString()),
+          Query.lessThan("date", endOfDay.toISOString()),
+          Query.limit(itemsPerPage),
+          Query.offset((page - 1) * itemsPerPage),
+        ]
+      );
+
+      const documents: AppDocument[] = response.documents.map((doc) => ({
+        $id: doc.$id,
+        $createdAt: doc.$createdAt,
+        food: getProperty(doc, "food") as string,
+        calories: getProperty(doc, "calories") as number,
+        date: getProperty(doc, "date") as string,
+        $collectionId: doc.$collectionId,
+        $databaseId: doc.$databaseId,
+        $updatedAt: doc.$updatedAt,
+        $permissions: doc.$permissions,
+      }));
+
+      setCalories(
+        documents.map((doc) => ({
+          food: getProperty(doc, "food"),
+          calories: getProperty(doc, "calories"),
+          date: new Date(getProperty(doc, "date")),
+        }))
+      );
+      setTotalCalories(
+        documents.reduce((sum, item) => sum + getProperty(item, "calories"), 0)
+      );
+
+      return { data: documents as unknown as Document[] };
+    } catch (error: unknown) {
+      console.error("Error fetching data:", error);
+      return { error: (error as Error).message };
+    }
   };
 
   const addCalories = (foodItem: string, calorieCount: number) => {

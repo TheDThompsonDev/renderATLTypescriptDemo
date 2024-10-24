@@ -9,6 +9,7 @@ export interface ModalClosed {
   }
   
   export type ModalState = ModalClosed | ModalOpen;
+  export type PartialModalState = Partial<ModalState>;
 /*This is a Discriminated Union!
 A discriminated union is a pattern in TypeScript that combines union types with 
 discriminant properties to 
